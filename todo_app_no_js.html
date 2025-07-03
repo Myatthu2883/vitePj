@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <link rel="stylesheet" href="./todo_app_no_js.css">
+</head>
+<body>
+    <main class="box">
+        <header class="heading">
+            <h2 class="secondHead">To-Do Lists</h2>
+        </header>
+        
+        <section class="section">
+            <input type="text" class="input" placeholder="Add a new task..." maxlength="100">
+            <button class="btn" type="button">+</button>
+        </section>
+        
+        <section>
+            <div class="Li">
+                <h3 class="subtitle">Your Tasks</h3>
+                <div class="status">
+                    <span>0</span>
+                    <span>/</span>
+                    <span>0</span>
+                </div>
+            </div>
+            
+            <div class="list-gp">
+                <div class="empty">
+                    <div class="empty-icon">📝</div>
+                    <p class="para">No tasks yet. Add one above!</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const addBtn = document.querySelector('.btn');
+            const input = document.querySelector('.input');
+            const listContainer = document.querySelector('.list-gp');
+            const statusElement = document.querySelector('.status');
+            
+            document.body.classList.add('has-tasks');
+            updateStatus();
+            
+            function updateStatus() {
+                const tasks = document.querySelectorAll('.list:not(.sample-task)');
+                const completed = document.querySelectorAll('.list:not(.sample-task) input[type="checkbox"]:checked');
+                const spans = statusElement.querySelectorAll('span');
+                spans[0].textContent = completed.length;
+                spans[2].textContent = tasks.length;
+            }
+            
+            function addTask(text) {
+                if (!text.trim()) return;
+                
+                const taskDiv = document.createElement('div');
+                taskDiv.className = 'list';
+                taskDiv.innerHTML = `
+                    <div class="check">
+                        <input type="checkbox">
+                        <p>${text}</p>
+                    </div>
+                    <div class="button">
+                        <button class="btt edit">Edit</button>
+                        <button class="btt delete">Delete</button>
+                    </div>
+                `;
+                
+                // Add event listeners
+                const checkbox = taskDiv.querySelector('input[type="checkbox"]');
+                const deleteBtn = taskDiv.querySelector('.delete');
+                const editBtn = taskDiv.querySelector('.edit');
+                
+                checkbox.addEventListener('change', updateStatus);
+                deleteBtn.addEventListener('click', () => {
+                    taskDiv.remove();
+                    updateStatus();
+                    if (document.querySelectorAll('.list:not(.sample-task)').length === 0) {
+                        document.body.classList.remove('has-tasks');
+                    }
+                });
+                
+                editBtn.addEventListener('click', () => {
+                    const p = taskDiv.querySelector('p');
+                    const currentText = p.textContent;
+                    const newText = prompt('Edit task:', currentText);
+                    if (newText !== null && newText.trim()) {
+                        p.textContent = newText.trim();
+                    }
+                });
+                
+                listContainer.appendChild(taskDiv);
+                document.body.classList.add('has-tasks');
+                updateStatus();
+            }
+            
+            addBtn.addEventListener('click', () => {
+                addTask(input.value);
+                input.value = '';
+            });
+            
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addTask(input.value);
+                    input.value = '';
+                }
+            });
+            
+            // Add event listeners to sample tasks
+            document.querySelectorAll('.sample-task input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', updateStatus);
+            });
+        });
+    </script>
+</body>
+</html>
